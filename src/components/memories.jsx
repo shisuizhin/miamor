@@ -16,42 +16,39 @@ const getTimeTogether = () => {
   return { years, months, days, hours: now.getHours(), minutes: now.getMinutes(), seconds: now.getSeconds(), totalDays };
 };
 
-
-const BUCKET = 'memory-photos'; 
+const BUCKET = 'memory-photos';
 
 const Memories = () => {
   const [time, setTime] = useState(getTimeTogether());
-  const [activeFilter, setActiveFilter] = useState('All');
+
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
-  
   useEffect(() => {
     const timer = setInterval(() => setTime(getTimeTogether()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  
   useEffect(() => {
     const fetchMemories = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // 1. Fetch all memories
         const { data: memoriesData, error: memoriesError } = await supabase
-          .from('memories')           // 👈 your table name
+          .from('memories')
           .select('*')
           .order('date', { ascending: false });
 
         if (memoriesError) throw memoriesError;
 
-        // 2. For each memory, fetch its photos from memory-photos table
         const memoriesWithPhotos = await Promise.all(
           memoriesData.map(async (memory) => {
             const { data: photosData, error: photosError } = await supabase
-              .from('memory-photos')  // 👈 your photos table name
+              .from('memory-photos')
               .select('*')
               .eq('memory_id', memory.id);
 
@@ -60,7 +57,6 @@ const Memories = () => {
               return { ...memory, photos: [] };
             }
 
-            // 3. Get public URLs from Supabase Storage
             const photos = photosData.map((photo) => {
               const { data } = supabase
                 .storage
@@ -90,6 +86,16 @@ const Memories = () => {
     fetchMemories();
   }, []);
 
+  const openModal = (entry) => {
+    setSelectedEntry(entry);
+    setActivePhotoIndex(0);
+  };
+
+  const closeModal = () => {
+    setSelectedEntry(null);
+    setActivePhotoIndex(0);
+  };
+
   const units = [
     { label: 'Years',   value: time.years },
     { label: 'Months',  value: time.months },
@@ -98,10 +104,6 @@ const Memories = () => {
     { label: 'Minutes', value: String(time.minutes).padStart(2, '0') },
     { label: 'Seconds', value: String(time.seconds).padStart(2, '0') },
   ];
-
-  const filtered = activeFilter === 'All'
-    ? entries
-    : entries.filter(e => e.extra === activeFilter);
 
   return (
     <div className="mem-page" id="memories">
@@ -112,7 +114,6 @@ const Memories = () => {
         <div className="mem-hero-content">
           <p className="mem-eyebrow">our moments</p>
           <h1 className="mem-title">Memories</h1>
-          
           <div className="mem-divider">
             <span className="mem-divider-line" />
             <span className="mem-divider-heart">♥</span>
@@ -136,18 +137,6 @@ const Memories = () => {
         </div>
       </div>
 
-      {/* Filter Bar */}
-      <div className="mem-filter-bar">
-        {['All', 'Dates', 'Trips', 'Firsts', 'Everyday'].map((tag) => (
-          <button
-            key={tag}
-            className={`mem-filter-btn ${activeFilter === tag ? 'active' : ''}`}
-            onClick={() => setActiveFilter(tag)}
-          >
-            {tag}
-          </button>
-        ))}
-      </div>
 
       {/* Loading State */}
       {loading && (
@@ -181,7 +170,6 @@ const Memories = () => {
       {!loading && !error && entries.length === 0 && (
         <div className="mem-empty-state">
           <div className="mem-empty-icon">♥</div>
-          
         </div>
       )}
 
@@ -189,11 +177,19 @@ const Memories = () => {
       {!loading && !error && entries.length > 0 && (
         <div className="mem-grid-wrapper">
           <div className="mem-grid">
-            {filtered.map((entry, i) => (
-              <div className="mem-card normal" key={entry.id} style={{ animationDelay: `${i * 0.08}s` }}>
+            {entries.map((entry, i) => (
+              <div
+                className="mem-card normal"
+                key={entry.id}
+                style={{ animationDelay: `${i * 0.08}s`, cursor: 'pointer' }}
+                onClick={() => openModal(entry)}
+              >
                 {entry.photos && entry.photos.length > 0 ? (
                   <div className="mem-card-img">
                     <img src={entry.photos[0].src} alt={entry.title} />
+                    {entry.photos.length > 1 && (
+                      <span className="mem-card-photo-count">+{entry.photos.length - 1}</span>
+                    )}
                   </div>
                 ) : (
                   <div className="mem-card-img-placeholder"><span className="mem-card-img-icon">✦</span></div>
@@ -203,13 +199,6 @@ const Memories = () => {
                   <h3 className="mem-card-title">{entry.title}</h3>
                   {entry.description && <p className="mem-card-text">{entry.description}</p>}
                   {entry.extra && <span className="mem-card-tag">{entry.extra}</span>}
-                  {entry.photos && entry.photos.length > 1 && (
-                    <div className="mem-card-extra-photos">
-                      {entry.photos.slice(1).map(photo => (
-                        <img key={photo.id} src={photo.src} alt={photo.name} className="mem-card-extra-photo" />
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -218,6 +207,50 @@ const Memories = () => {
       )}
 
       <div className="mem-bottom-decor"><span>✦</span><span>♥</span><span>✦</span></div>
+
+      {/* ── Modal ── */}
+      {selectedEntry && (
+        <div className="mem-modal-overlay" onClick={closeModal}>
+          <div className="mem-modal" onClick={e => e.stopPropagation()}>
+            <button className="mem-modal-close" onClick={closeModal}>✕</button>
+
+            {/* Main photo */}
+            {selectedEntry.photos && selectedEntry.photos.length > 0 && (
+              <div className="mem-modal-img-wrap">
+                <img
+                  src={selectedEntry.photos[activePhotoIndex].src}
+                  alt={selectedEntry.title}
+                  className="mem-modal-img"
+                />
+              </div>
+            )}
+
+            {/* Thumbnail strip if multiple photos */}
+            {selectedEntry.photos && selectedEntry.photos.length > 1 && (
+              <div className="mem-modal-thumbs">
+                {selectedEntry.photos.map((photo, idx) => (
+                  <img
+                    key={photo.id}
+                    src={photo.src}
+                    alt={photo.name}
+                    className={`mem-modal-thumb ${idx === activePhotoIndex ? 'active' : ''}`}
+                    onClick={() => setActivePhotoIndex(idx)}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="mem-modal-body">
+              {selectedEntry.date && <span className="mem-card-date">{selectedEntry.date}</span>}
+              <h3 className="mem-modal-title">{selectedEntry.title}</h3>
+              {selectedEntry.description && (
+                <p className="mem-modal-desc">{selectedEntry.description}</p>
+              )}
+              {selectedEntry.extra && <span className="mem-card-tag">{selectedEntry.extra}</span>}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
