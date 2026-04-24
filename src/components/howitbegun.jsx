@@ -39,7 +39,7 @@ const HowItBegun = () => {
         <div className="hib-hero-content">
           <p className="hib-eyebrow">our story</p>
           <h1 className="hib-title">How It Begun</h1>
-          <p className="hib-subtitle">Every love story is beautiful but ours is our favorite.</p>
+          
           <div className="hib-divider">
             <span className="hib-divider-line" />
             <span className="hib-divider-heart">♥</span>
@@ -98,8 +98,7 @@ const HowItBegun = () => {
       {!loading && !error && entries.length === 0 && (
         <div className="hib-empty-state">
           <div className="hib-empty-icon">♥</div>
-          <h2 className="hib-empty-title">Our story...</h2>
-          <p className="hib-empty-text">This is where our journey will live — every moment, every memory, every beginning. </p>
+          
         </div>
       )}
 
