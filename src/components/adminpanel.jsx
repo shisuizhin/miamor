@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './adminpanel.css';
 import { supabase } from '../supabaseClient';
 
-const PASSCODE = '1234'; // Change this to your real passcode
+const PASSCODE = '0831'; 
 
 const SECTIONS = ['Memories', 'How It Begun', 'Things We Love', 'Love Notes', 'Bucket List'];
 
-const BUCKET = 'memory-photos'; // 👈 your storage bucket name
+const BUCKET = 'memory-photos'; 
 
 // Map section names to Supabase table names
 const TABLE_MAP = {
