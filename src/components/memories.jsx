@@ -16,8 +16,8 @@ const getTimeTogether = () => {
   return { years, months, days, hours: now.getHours(), minutes: now.getMinutes(), seconds: now.getSeconds(), totalDays };
 };
 
-// ─── Supabase Storage bucket name ────────────────────────────────────────────
-const BUCKET = 'memory-photos'; // 👈 change this to your actual bucket name
+
+const BUCKET = 'memory-photos'; 
 
 const Memories = () => {
   const [time, setTime] = useState(getTimeTogether());
@@ -26,13 +26,13 @@ const Memories = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ─── Live clock ────────────────────────────────────────────────────────────
+  
   useEffect(() => {
     const timer = setInterval(() => setTime(getTimeTogether()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // ─── Fetch memories + photos from Supabase ─────────────────────────────────
+  
   useEffect(() => {
     const fetchMemories = async () => {
       setLoading(true);
@@ -112,7 +112,7 @@ const Memories = () => {
         <div className="mem-hero-content">
           <p className="mem-eyebrow">our moments</p>
           <h1 className="mem-title">Memories</h1>
-          <p className="mem-subtitle">A collection of the little and big moments that made us, us.</p>
+          
           <div className="mem-divider">
             <span className="mem-divider-line" />
             <span className="mem-divider-heart">♥</span>
@@ -125,7 +125,7 @@ const Memories = () => {
       {/* Love Counter */}
       <div className="mem-counter-section">
         <p className="mem-counter-since">together since November 28, 2023</p>
-        <p className="mem-counter-days">{time.totalDays.toLocaleString()} days of us &nbsp;♥</p>
+        <p className="mem-counter-days">{time.totalDays.toLocaleString()} days &nbsp;♥</p>
         <div className="mem-counter-grid">
           {units.map(({ label, value }) => (
             <div className="mem-counter-card" key={label}>
@@ -181,11 +181,7 @@ const Memories = () => {
       {!loading && !error && entries.length === 0 && (
         <div className="mem-empty-state">
           <div className="mem-empty-icon">♥</div>
-          <h2 className="mem-empty-title">Memories are on their way...</h2>
-          <p className="mem-empty-text">
-            This is where every photo, every laugh, every adventure will live.<br />
-            Just for the two of us.
-          </p>
+          
         </div>
       )}
 
