@@ -1,0 +1,321 @@
+/* ── BucketList.css ── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600&display=swap');
+
+:root {
+  --bl-red: #c0002a;
+  --bl-red-light: #e8003a;
+  --bl-pink: #ffd6e0;
+  --bl-pink-mid: #ffb3c6;
+  --bl-pink-deep: #f472a0;
+  --bl-white: #ffffff;
+  --bl-text-dark: #2d0a14;
+  --bl-text-mid: #7a2035;
+  --bl-text-soft: #b05070;
+}
+
+/* ── SECTION ── */
+.bl-section {
+  font-family: 'Lato', sans-serif;
+  background: var(--bl-white);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HERO ── */
+.bl-hero {
+  background: linear-gradient(160deg, #fff0f4 0%, #ffe4ec 60%, #ffd6e0 100%);
+  text-align: center;
+  padding: 80px 24px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bl-hero::before,
+.bl-hero::after {
+  content: '+';
+  position: absolute;
+  font-size: 20px;
+  color: var(--bl-pink-mid);
+  opacity: 0.6;
+}
+.bl-hero::before { top: 60px; left: 12%; }
+.bl-hero::after  { bottom: 60px; right: 12%; }
+
+.bl-label {
+  display: inline-block;
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: var(--bl-red);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.bl-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 8vw, 80px);
+  font-weight: 700;
+  color: var(--bl-text-dark);
+  margin: 0 0 16px;
+  line-height: 1.1;
+}
+
+.bl-subtitle {
+  font-size: 16px;
+  color: var(--bl-text-soft);
+  font-weight: 300;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.bl-divider {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--bl-red);
+  font-size: 18px;
+}
+.bl-divider::before,
+.bl-divider::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--bl-pink-deep));
+}
+.bl-divider::after {
+  background: linear-gradient(to left, transparent, var(--bl-pink-deep));
+}
+
+/* ── STATS ── */
+.bl-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  padding: 40px 24px;
+  background: var(--bl-white);
+  border-bottom: 1px solid var(--bl-pink);
+}
+
+.bl-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bl-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--bl-red);
+  line-height: 1;
+}
+
+.bl-stat-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--bl-text-soft);
+  font-weight: 600;
+}
+
+.bl-stat-heart {
+  font-size: 16px;
+  color: var(--bl-pink-mid);
+}
+
+/* ── CONTROLS ── */
+.bl-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 28px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── FILTERS ── */
+.bl-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.bl-filter-btn {
+  padding: 8px 18px;
+  border-radius: 50px;
+  border: 1.5px solid var(--bl-pink-mid);
+  background: transparent;
+  color: var(--bl-text-mid);
+  font-family: 'Lato', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.bl-filter-btn:hover {
+  background: var(--bl-pink);
+  border-color: var(--bl-pink-deep);
+  color: var(--bl-red);
+}
+
+.bl-filter-btn.active {
+  background: var(--bl-red);
+  border-color: var(--bl-red);
+  color: var(--bl-white);
+}
+
+/* ── ADD BUTTON ── */
+.bl-add-btn {
+  padding: 10px 26px;
+  border-radius: 50px;
+  border: none;
+  background: var(--bl-red);
+  color: var(--bl-white);
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 4px 16px rgba(192, 0, 42, 0.25);
+}
+
+.bl-add-btn:hover {
+  background: var(--bl-red-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(192, 0, 42, 0.35);
+}
+
+/* ── EMPTY STATE ── */
+.bl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 60px;
+  text-align: center;
+}
+
+.bl-empty-petals {
+  display: flex;
+  gap: 12px;
+  font-size: 36px;
+  margin-bottom: 28px;
+}
+
+.bl-empty-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--bl-text-dark);
+  margin: 0 0 12px;
+}
+
+.bl-empty-text {
+  font-size: 15px;
+  color: var(--bl-text-soft);
+  font-weight: 300;
+  margin: 0 0 32px;
+  max-width: 340px;
+  line-height: 1.6;
+}
+
+.bl-empty-cta {
+  padding: 14px 36px;
+  border-radius: 50px;
+  border: 2px solid var(--bl-red);
+  background: transparent;
+  color: var(--bl-red);
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.bl-empty-cta:hover {
+  background: var(--bl-red);
+  color: var(--bl-white);
+  box-shadow: 0 4px 16px rgba(192, 0, 42, 0.25);
+  transform: translateY(-1px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .bl-controls {
+    padding: 20px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .bl-stats {
+    gap: 24px;
+  }
+}
+
+/* ── BUCKET LIST CARDS (real entries) ── */
+.bl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 0 48px 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.bl-card {
+  background: #fff;
+  border: 1.5px solid var(--bl-pink);
+  border-radius: 18px;
+  padding: 24px 22px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.bl-card:hover {
+  box-shadow: 0 8px 24px rgba(192,0,42,0.1);
+  transform: translateY(-2px);
+}
+
+.bl-card-category {
+  display: inline-block;
+  padding: 3px 12px;
+  background: var(--bl-pink);
+  color: var(--bl-red);
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.bl-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d0a14;
+  margin: 0 0 8px;
+}
+
+.bl-card-desc {
+  font-size: 13px;
+  color: #b05070;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+.bl-card-date {
+  font-size: 11px;
+  color: #b05070;
+  letter-spacing: 0.5px;
+}
