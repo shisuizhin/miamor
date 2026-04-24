@@ -98,10 +98,8 @@ const HowItBegun = () => {
       {!loading && !error && entries.length === 0 && (
         <div className="hib-empty-state">
           <div className="hib-empty-icon">♥</div>
-          <h2 className="hib-empty-title">Our story is being written...</h2>
-          <p className="hib-empty-text">
-            This is where our journey will live — every moment, every memory, every beginning.
-          </p>
+          <h2 className="hib-empty-title">Our story...</h2>
+          <p className="hib-empty-text">This is where our journey will live — every moment, every memory, every beginning. </p>
         </div>
       )}
 
