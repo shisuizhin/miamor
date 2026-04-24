@@ -111,8 +111,8 @@ export default function BucketList() {
           <div className="bl-empty-petals">
             <span>🌸</span><span>✨</span><span>🌸</span>
           </div>
-          <h3 className="bl-empty-title">Your bucket list is waiting...</h3>
-          <p className="bl-empty-text">Start adding dreams you want to make real together.</p>
+          <h3 className="bl-empty-title"></h3>
+          <p className="bl-empty-text"></p>
         </div>
       )}
 
