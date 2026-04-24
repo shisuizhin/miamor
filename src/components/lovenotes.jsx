@@ -42,7 +42,7 @@ const LoveNote = () => {
         <div className="ln-hero-content">
           <p className="ln-eyebrow">written with love</p>
           <h1 className="ln-title">Love Notes</h1>
-          <p className="ln-subtitle">Little words that hold the biggest feelings — just for you, just for us.</p>
+          
           <div className="ln-divider">
             <span className="ln-divider-line" />
             <span className="ln-divider-heart">♥</span>
@@ -104,8 +104,7 @@ const LoveNote = () => {
       {!loading && !error && entries.length === 0 && (
         <div className="ln-empty-state">
           <div className="ln-empty-icon">♥</div>
-          <h2 className="ln-empty-title">Notes are being penned with love...</h2>
-          <p className="ln-empty-text">Every sweet word, every inside joke, every "I love you" —<br />they'll all find a home right here.</p>
+          
         </div>
       )}
 
