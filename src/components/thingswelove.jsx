@@ -16,7 +16,7 @@ const ThingsWeLove = () => {
       setError(null);
       try {
         const { data, error } = await supabase
-          .from('thingswelove')          
+          .from('thingswelove')          // 👈 your table name
           .select('*')
           .order('id', { ascending: false });
 
@@ -44,9 +44,9 @@ const ThingsWeLove = () => {
       <div className="twl-hero">
         <div className="twl-hero-decor left"><span>✦</span><span>✦</span><span>✦</span></div>
         <div className="twl-hero-content">
-          
+          <p className="twl-eyebrow">just for us</p>
           <h1 className="twl-title">Things We Love</h1>
-          <p className="twl-subtitle"></p>
+          
           <div className="twl-divider">
             <span className="twl-divider-line" />
             <span className="twl-divider-heart">♥</span>
@@ -103,8 +103,8 @@ const ThingsWeLove = () => {
       {!loading && !error && entries.length === 0 && (
         <div className="twl-empty-state">
           <div className="twl-empty-icon">♥</div>
-          <h2 className="twl-empty-title">...</h2>
-          <p className="twl-empty-text">Everything we love will live right here.</p>
+         
+          
         </div>
       )}
 
