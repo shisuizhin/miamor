@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from './supabaseClient';
 
 import Navbar from './components/navbar';
 import HowItBegun from './components/howitbegun';
@@ -10,6 +11,11 @@ import AdminPanel from './components/adminpanel';
 
 function App() {
   const [showAdmin, setShowAdmin] = useState(false);
+
+  // Track a page view every time the site is opened
+  useEffect(() => {
+    supabase.from('page_views').insert([{}]);
+  }, []);
 
   return (
     <div className="App">
