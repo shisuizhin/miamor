@@ -1,4 +1,4 @@
-/* ── AdminPanel.css ── */
+
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');
 
 :root {
@@ -582,4 +582,140 @@
   object-fit: cover;
   border-radius: 8px;
   border: 1.5px solid var(--ap-pink);
+}
+/* ── Edit mode ── */
+.ap-entry-card {
+  position: relative;
+}
+
+.ap-entry-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding-left: 8px;
+}
+
+.ap-edit-btn {
+  background: none;
+  border: 1.5px solid #e8b4c0;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.18s;
+  line-height: 1;
+}
+.ap-edit-btn:hover {
+  background: #fce8ef;
+}
+
+.ap-edit-body {
+  width: 100%;
+  padding: 4px 0;
+}
+
+.ap-edit-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c0527a;
+  margin: 0 0 12px;
+}
+
+/* Confirm banner (edit) */
+.ap-confirm-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff3f7;
+  border: 1.5px solid #f0b8cc;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.ap-confirm-banner span {
+  font-size: 13.5px;
+  color: #8a3a55;
+  flex: 1;
+}
+
+.ap-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ap-btn-confirm {
+  background: #c0527a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.ap-btn-confirm:hover {
+  background: #a33f65;
+}
+.ap-btn-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Delete confirm inline */
+.ap-delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-direction: column;
+}
+
+.ap-delete-confirm span {
+  font-size: 11px;
+  color: #a33f65;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ap-btn-danger {
+  background: #e05070;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+.ap-btn-danger:hover {
+  background: #c03050;
+}
+
+.ap-btn-xs {
+  padding: 3px 8px !important;
+  font-size: 11px !important;
+  width: 100%;
+}
+
+/* Keep existing remove btn for the non-confirm state */
+.ap-remove-btn {
+  background: none;
+  border: 1.5px solid #f0b8cc;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 16px;
+  color: #c0527a;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.18s, color 0.18s;
+}
+.ap-remove-btn:hover {
+  background: #fce8ef;
+  color: #a33f65;
 }
