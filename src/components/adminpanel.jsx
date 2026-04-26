@@ -45,17 +45,21 @@ export default function AdminPanel({ onClose }) {
   // Edit state
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', description: '', date: '', extra: '', completed: false });
-  const [confirmEditId, setConfirmEditId] = useState(null); // which entry is pending confirm
+  const [confirmEditId, setConfirmEditId] = useState(null);
   const [editSaving, setEditSaving] = useState(false);
 
   // Delete confirm state
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+  // ── View counter state ──
+  const [viewCount, setViewCount] = useState(null);
 
   const fileInputRef = useRef();
 
   useEffect(() => {
     if (phase !== 'dashboard') return;
     fetchEntries();
+    fetchViewCount();
   }, [activeSection, phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchEntries = useCallback(async () => {
@@ -94,6 +98,18 @@ export default function AdminPanel({ onClose }) {
       setLoadingEntries(false);
     }
   }, [activeSection, phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Fetch view count ──
+  const fetchViewCount = useCallback(async () => {
+    try {
+      const { count } = await supabase
+        .from('page_views')
+        .select('*', { count: 'exact', head: true });
+      setViewCount(count);
+    } catch (err) {
+      console.error('Error fetching view count:', err);
+    }
+  }, []);
 
   // ── Passcode ──
   const handlePasscode = (digit) => {
@@ -228,13 +244,11 @@ export default function AdminPanel({ onClose }) {
     setEditForm({ title: '', description: '', date: '', extra: '', completed: false });
   };
 
-  // First click on Save → show confirm banner
   const requestConfirmEdit = (id) => {
     if (!editForm.title.trim()) return;
     setConfirmEditId(id);
   };
 
-  // Confirmed → actually save
   const handleConfirmEdit = async (id) => {
     setEditSaving(true);
     try {
@@ -277,7 +291,6 @@ export default function AdminPanel({ onClose }) {
         <div className={`ap-lock-card ${shake ? 'ap-shake' : ''}`}>
           <div className="ap-lock-top">
             <span className="ap-lock-icon">♥</span>
-          
             <p className="ap-lock-sub">
               {phase === 'wrong'
                 ? <span className="ap-wrong-msg">Who are you? 👀<br /><small>That's not right. Try again.</small></span>
@@ -318,7 +331,19 @@ export default function AdminPanel({ onClose }) {
           <div className="ap-sidebar-top">
             <span className="ap-sidebar-logo">miamor</span>
             <span className="ap-sidebar-role">Admin</span>
+
+            {/* ── View Counter ── */}
+            <div className="ap-sidebar-views">
+              <span>👁</span>
+              <div>
+                <span className="ap-views-count">
+                  {viewCount === null ? '...' : viewCount.toLocaleString()}
+                </span>
+                <span className="ap-views-label">total views</span>
+              </div>
+            </div>
           </div>
+
           <nav className="ap-nav">
             {SECTIONS.map(s => (
               <button
