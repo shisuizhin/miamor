@@ -2,13 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './adminpanel.css';
 import { supabase } from '../supabaseClient';
 
-const PASSCODE = '0831'; 
+const PASSCODE = '0831';
 
 const SECTIONS = ['Memories', 'How It Begun', 'Things We Love', 'Love Notes', 'Bucket List'];
 
-const BUCKET = 'memory-photos'; 
+const BUCKET = 'memory-photos';
 
-// Map section names to Supabase table names
 const TABLE_MAP = {
   'Memories':       'memories',
   'How It Begun':   'howitbegun',
@@ -19,12 +18,12 @@ const TABLE_MAP = {
 
 function sectionIcon(s) {
   switch (s) {
-    case 'Memories':       return '📸';
-    case 'How It Begun':   return '🌹';
-    case 'Things We Love': return '💕';
-    case 'Love Notes':     return '✉️';
-    case 'Bucket List':    return '✨';
-    default:               return '♥';
+    case 'Memories':       return '';
+    case 'How It Begun':   return '';
+    case 'Things We Love': return '';
+    case 'Love Notes':     return '';
+    case 'Bucket List':    return '';
+    default:               return '';
   }
 }
 
@@ -42,9 +41,18 @@ export default function AdminPanel({ onClose }) {
   const [loadingEntries, setLoadingEntries] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Edit state
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ title: '', description: '', date: '', extra: '', completed: false });
+  const [confirmEditId, setConfirmEditId] = useState(null); // which entry is pending confirm
+  const [editSaving, setEditSaving] = useState(false);
+
+  // Delete confirm state
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
   const fileInputRef = useRef();
 
-  // ── Fetch entries when section changes ──
   useEffect(() => {
     if (phase !== 'dashboard') return;
     fetchEntries();
@@ -61,7 +69,6 @@ export default function AdminPanel({ onClose }) {
 
       if (error) throw error;
 
-      // For Memories, also fetch photos
       if (activeSection === 'Memories') {
         const withPhotos = await Promise.all(data.map(async (mem) => {
           const { data: photos } = await supabase
@@ -113,9 +120,7 @@ export default function AdminPanel({ onClose }) {
   const handleFiles = (files) => {
     const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
     if (imageFiles.length === 0) return;
-
     setPhotoFiles(prev => [...prev, ...imageFiles]);
-
     imageFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -138,16 +143,13 @@ export default function AdminPanel({ onClose }) {
     setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  // ── Save entry to Supabase ──
+  // ── Add entry ──
   const handleAddEntry = async () => {
     if (!form.title.trim()) return;
     setSaving(true);
-
     try {
       const table = TABLE_MAP[activeSection];
-
-      // Insert the main entry
-      const hasExtra = ["Memories", "Things We Love", "Bucket List"].includes(activeSection);
+      const hasExtra = ['Memories', 'Things We Love', 'Bucket List'].includes(activeSection);
       const { data: inserted, error: insertError } = await supabase
         .from(table)
         .insert([{
@@ -155,34 +157,24 @@ export default function AdminPanel({ onClose }) {
           description: form.description || null,
           date: form.date || null,
           ...(hasExtra && { extra: form.extra || null }),
-          ...(activeSection === "Bucket List" && { completed: form.completed }),
+          ...(activeSection === 'Bucket List' && { completed: form.completed }),
         }])
         .select()
         .single();
 
       if (insertError) throw insertError;
 
-      // Upload photos for Memories
       if (activeSection === 'Memories' && photoFiles.length > 0) {
         setUploading(true);
         await Promise.all(photoFiles.map(async (file) => {
           const filePath = `${inserted.id}/${Date.now()}-${file.name}`;
-
-          const { error: uploadError } = await supabase
-            .storage
-            .from(BUCKET)
-            .upload(filePath, file);
-
+          const { error: uploadError } = await supabase.storage.from(BUCKET).upload(filePath, file);
           if (uploadError) throw uploadError;
-
-          await supabase
-            .from('memory-photos')
-            .insert([{ memory_id: inserted.id, file_path: filePath }]);
+          await supabase.from('memory-photos').insert([{ memory_id: inserted.id, file_path: filePath }]);
         }));
         setUploading(false);
       }
 
-      // Refresh entries
       await fetchEntries();
       resetForm();
     } catch (err) {
@@ -197,26 +189,77 @@ export default function AdminPanel({ onClose }) {
   const handleRemove = async (id) => {
     const table = TABLE_MAP[activeSection];
     try {
-      // For memories, also delete photos
       if (activeSection === 'Memories') {
         const { data: photos } = await supabase
           .from('memory-photos')
           .select('file_path')
           .eq('memory_id', id);
-
         if (photos && photos.length > 0) {
           await supabase.storage.from(BUCKET).remove(photos.map(p => p.file_path));
           await supabase.from('memory-photos').delete().eq('memory_id', id);
         }
       }
-
       const { error } = await supabase.from(table).delete().eq('id', id);
       if (error) throw error;
-
       setEntries(prev => prev.filter(e => e.id !== id));
+      setConfirmDeleteId(null);
     } catch (err) {
       console.error('Error deleting entry:', err);
       alert('Could not delete entry. Please try again.');
+    }
+  };
+
+  // ── Edit helpers ──
+  const startEdit = (item) => {
+    setEditingId(item.id);
+    setConfirmEditId(null);
+    setEditForm({
+      title: item.title || '',
+      description: item.description || '',
+      date: item.date || '',
+      extra: item.extra || '',
+      completed: item.completed || false,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setConfirmEditId(null);
+    setEditForm({ title: '', description: '', date: '', extra: '', completed: false });
+  };
+
+  // First click on Save → show confirm banner
+  const requestConfirmEdit = (id) => {
+    if (!editForm.title.trim()) return;
+    setConfirmEditId(id);
+  };
+
+  // Confirmed → actually save
+  const handleConfirmEdit = async (id) => {
+    setEditSaving(true);
+    try {
+      const table = TABLE_MAP[activeSection];
+      const hasExtra = ['Memories', 'Things We Love', 'Bucket List'].includes(activeSection);
+      const { error } = await supabase
+        .from(table)
+        .update({
+          title: editForm.title,
+          description: editForm.description || null,
+          date: editForm.date || null,
+          ...(hasExtra && { extra: editForm.extra || null }),
+          ...(activeSection === 'Bucket List' && { completed: editForm.completed }),
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      await fetchEntries();
+      cancelEdit();
+    } catch (err) {
+      console.error('Error updating entry:', err);
+      alert('Could not update entry. Please try again.');
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -234,7 +277,7 @@ export default function AdminPanel({ onClose }) {
         <div className={`ap-lock-card ${shake ? 'ap-shake' : ''}`}>
           <div className="ap-lock-top">
             <span className="ap-lock-icon">♥</span>
-            <h2 className="ap-lock-title">Admin Access</h2>
+          
             <p className="ap-lock-sub">
               {phase === 'wrong'
                 ? <span className="ap-wrong-msg">Who are you? 👀<br /><small>That's not right. Try again.</small></span>
@@ -273,7 +316,7 @@ export default function AdminPanel({ onClose }) {
         {/* Sidebar */}
         <div className="ap-sidebar">
           <div className="ap-sidebar-top">
-            <span className="ap-sidebar-logo">♥ miamor</span>
+            <span className="ap-sidebar-logo">miamor</span>
             <span className="ap-sidebar-role">Admin</span>
           </div>
           <nav className="ap-nav">
@@ -281,7 +324,7 @@ export default function AdminPanel({ onClose }) {
               <button
                 key={s}
                 className={`ap-nav-item ${activeSection === s ? 'active' : ''}`}
-                onClick={() => { setActiveSection(s); resetForm(); }}
+                onClick={() => { setActiveSection(s); resetForm(); cancelEdit(); setConfirmDeleteId(null); }}
               >
                 <span className="ap-nav-icon">{sectionIcon(s)}</span>
                 {s}
@@ -343,7 +386,7 @@ export default function AdminPanel({ onClose }) {
 
                 {(activeSection === 'Things We Love' || activeSection === 'Bucket List' || activeSection === 'Memories') && (
                   <div className="ap-field">
-                    <label>{activeSection === 'Bucket List' ? 'Category' : activeSection === 'Memories' ? 'Tag' : 'Tag'}</label>
+                    <label>{activeSection === 'Bucket List' ? 'Category' : 'Tag'}</label>
                     <input
                       className="ap-input"
                       placeholder={activeSection === 'Bucket List' ? 'e.g. Travel' : activeSection === 'Memories' ? 'e.g. Dates' : 'e.g. Food'}
@@ -367,7 +410,6 @@ export default function AdminPanel({ onClose }) {
                   </div>
                 )}
 
-                {/* Photo Upload — Memories only */}
                 {activeSection === 'Memories' && (
                   <div className="ap-field ap-field-full">
                     <label>Photos</label>
@@ -378,7 +420,7 @@ export default function AdminPanel({ onClose }) {
                       onDrop={handleDrop}
                       onClick={() => !uploading && fileInputRef.current.click()}
                     >
-                      <span className="ap-dropzone-icon">{uploading ? '⏳' : '📸'}</span>
+                      <span className="ap-dropzone-icon">{uploading ? '' : ''}</span>
                       <span className="ap-dropzone-text">
                         {uploading ? 'Uploading...' : 'Click or drag & drop photos here'}
                       </span>
@@ -427,21 +469,141 @@ export default function AdminPanel({ onClose }) {
             <div className="ap-entries">
               {entries.map(item => (
                 <div key={item.id} className="ap-entry-card">
-                  <div className="ap-entry-body">
-                    <span className="ap-entry-title">{item.title}</span>
-                    {item.date && <span className="ap-entry-date">{item.date}</span>}
-                    {item.description && <p className="ap-entry-desc">{item.description}</p>}
-                    {item.extra && <span className="ap-entry-tag">{item.extra}</span>}
-                    {item.completed && <span className="ap-entry-tag">✓ Done</span>}
-                    {item.photos && item.photos.length > 0 && (
-                      <div className="ap-entry-photos">
-                        {item.photos.map(photo => (
-                          <img key={photo.id} src={photo.src} alt={photo.name} className="ap-entry-photo" />
-                        ))}
+
+                  {/* ── EDIT MODE ── */}
+                  {editingId === item.id ? (
+                    <div className="ap-edit-body">
+                      <h4 className="ap-edit-label">✏️ Editing entry</h4>
+                      <div className="ap-form-grid">
+                        <div className="ap-field">
+                          <label>Title *</label>
+                          <input
+                            className="ap-input"
+                            value={editForm.title}
+                            onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+                          />
+                        </div>
+                        <div className="ap-field">
+                          <label>Date</label>
+                          <input
+                            className="ap-input"
+                            type="date"
+                            value={editForm.date}
+                            onChange={e => setEditForm({ ...editForm, date: e.target.value })}
+                          />
+                        </div>
+                        <div className="ap-field ap-field-full">
+                          <label>Description</label>
+                          <textarea
+                            className="ap-input ap-textarea"
+                            value={editForm.description}
+                            onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                          />
+                        </div>
+                        {['Memories', 'Things We Love', 'Bucket List'].includes(activeSection) && (
+                          <div className="ap-field">
+                            <label>{activeSection === 'Bucket List' ? 'Category' : 'Tag'}</label>
+                            <input
+                              className="ap-input"
+                              value={editForm.extra}
+                              onChange={e => setEditForm({ ...editForm, extra: e.target.value })}
+                            />
+                          </div>
+                        )}
+                        {activeSection === 'Bucket List' && (
+                          <div className="ap-field">
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={editForm.completed}
+                                onChange={e => setEditForm({ ...editForm, completed: e.target.checked })}
+                                style={{ marginRight: 8 }}
+                              />
+                              Mark as completed
+                            </label>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <button className="ap-remove-btn" onClick={() => handleRemove(item.id)}>×</button>
+
+                      {/* Confirm banner */}
+                      {confirmEditId === item.id ? (
+                        <div className="ap-confirm-banner">
+                          <span> Save changes to this entry?</span>
+                          <div className="ap-confirm-actions">
+                            <button
+                              className="ap-btn-confirm"
+                              onClick={() => handleConfirmEdit(item.id)}
+                              disabled={editSaving}
+                            >
+                              {editSaving ? 'Saving...' : 'Yes, save ♥'}
+                            </button>
+                            <button
+                              className="ap-btn-ghost"
+                              onClick={() => setConfirmEditId(null)}
+                              disabled={editSaving}
+                            >
+                              Back
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="ap-form-actions">
+                          <button
+                            className="ap-btn-primary"
+                            onClick={() => requestConfirmEdit(item.id)}
+                          >
+                            Save Changes
+                          </button>
+                          <button className="ap-btn-ghost" onClick={cancelEdit}>Cancel</button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* ── VIEW MODE ── */
+                    <>
+                      <div className="ap-entry-body">
+                        <span className="ap-entry-title">{item.title}</span>
+                        {item.date && <span className="ap-entry-date">{item.date}</span>}
+                        {item.description && <p className="ap-entry-desc">{item.description}</p>}
+                        {item.extra && <span className="ap-entry-tag">{item.extra}</span>}
+                        {item.completed && <span className="ap-entry-tag">✓ Done</span>}
+                        {item.photos && item.photos.length > 0 && (
+                          <div className="ap-entry-photos">
+                            {item.photos.map(photo => (
+                              <img key={photo.id} src={photo.src} alt={photo.name} className="ap-entry-photo" />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="ap-entry-actions">
+                        <button
+                          className="ap-edit-btn"
+                          onClick={() => startEdit(item)}
+                          title="Edit"
+                        >
+                          ✏️
+                        </button>
+
+                        {/* Delete with confirm */}
+                        {confirmDeleteId === item.id ? (
+                          <div className="ap-delete-confirm">
+                            <span>Delete?</span>
+                            <button className="ap-btn-danger" onClick={() => handleRemove(item.id)}>Yes</button>
+                            <button className="ap-btn-ghost ap-btn-xs" onClick={() => setConfirmDeleteId(null)}>No</button>
+                          </div>
+                        ) : (
+                          <button
+                            className="ap-remove-btn"
+                            onClick={() => setConfirmDeleteId(item.id)}
+                            title="Delete"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
