@@ -105,6 +105,7 @@ const LoveNote = () => {
         <div className="ln-empty-state">
           <div className="ln-empty-icon">♥</div>
           
+          
         </div>
       )}
 
