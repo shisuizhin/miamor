@@ -56,7 +56,7 @@ const LoveNote = () => {
       {loading && (
         <div className="ln-notes-wrapper">
           <div className="ln-note featured">
-            <div className="ln-note-tag">✦ &nbsp;Featured Note</div>
+            <div className="ln-note-tag">✦ &nbsp;Note</div>
             <div className="ln-note-inner">
               <div className="ln-quote-mark">"</div>
               <div className="ln-skeleton ln-sk-line long" />
@@ -75,7 +75,7 @@ const LoveNote = () => {
               <div className="ln-note small" key={i} style={{ animationDelay: `${i * 0.07}s` }}>
                 <div className="ln-note-ribbon" />
                 <div className="ln-note-inner">
-                  <div className="ln-quote-mark small">"</div>
+                 
                   <div className="ln-skeleton ln-sk-line" />
                   <div className="ln-skeleton ln-sk-line medium" />
                   <div className="ln-skeleton ln-sk-line short" />
@@ -114,7 +114,7 @@ const LoveNote = () => {
         <div className="ln-notes-wrapper">
           {featured && (
             <div className="ln-note featured">
-              <div className="ln-note-tag">✦ &nbsp;Featured Note</div>
+              <div className="ln-note-tag">✦ &nbsp; Note</div>
               <div className="ln-note-inner">
                 <div className="ln-quote-mark">"</div>
                 <p className="ln-note-text">{featured.description || featured.title}</p>
