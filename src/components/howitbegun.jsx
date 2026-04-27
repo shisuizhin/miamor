@@ -189,7 +189,7 @@ const HowItBegun = () => {
         <div className="hib-hero-content">
           <p className="hib-eyebrow">our story</p>
           <h1 className="hib-title">How It Begun</h1>
-          <p className="hib-subtitle">Every love story is beautiful — but ours is our favorite.</p>
+         
           <div className="hib-divider">
             <span className="hib-divider-line" />
             <span className="hib-divider-heart">♥</span>
@@ -203,9 +203,9 @@ const HowItBegun = () => {
       {!started && !loading && !error && entries.length > 0 && (
         <div className="hib-start-zone">
           <button className="hib-start-btn" onClick={handleStart}>
-            Begin our story ♥
+             ♥
           </button>
-          <span className="hib-start-hint">pull the lever to unfold each memory</span>
+          <span className="hib-start-hint">Click me!</span>
         </div>
       )}
 
