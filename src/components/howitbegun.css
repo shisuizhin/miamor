@@ -42,22 +42,11 @@
   font-size: 0.75rem;
   opacity: 0.7;
 }
+.hib-hero-decor.left  { animation: floatLeft  4s ease-in-out infinite; }
+.hib-hero-decor.right { animation: floatRight 4s ease-in-out infinite; }
 
-.hib-hero-decor.left {
-  animation: floatLeft 4s ease-in-out infinite;
-}
-.hib-hero-decor.right {
-  animation: floatRight 4s ease-in-out infinite;
-}
-
-@keyframes floatLeft {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-8px); }
-}
-@keyframes floatRight {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(8px); }
-}
+@keyframes floatLeft  { 0%, 100% { transform: translateY(0);    } 50% { transform: translateY(-8px); } }
+@keyframes floatRight { 0%, 100% { transform: translateY(0);    } 50% { transform: translateY(8px);  } }
 
 .hib-hero-content {
   text-align: center;
@@ -65,7 +54,6 @@
 }
 
 .hib-eyebrow {
-  font-family: 'DM Sans', sans-serif;
   font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.22em;
@@ -103,7 +91,6 @@
   height: 1px;
   background: linear-gradient(to right, transparent, var(--pink-light));
 }
-
 .hib-divider-line:last-child {
   background: linear-gradient(to left, transparent, var(--pink-light));
 }
@@ -116,14 +103,274 @@
 }
 
 @keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
+  0%, 100% { transform: scale(1);    }
   14%       { transform: scale(1.25); }
-  28%       { transform: scale(1); }
+  28%       { transform: scale(1);    }
   42%       { transform: scale(1.15); }
-  56%       { transform: scale(1); }
+  56%       { transform: scale(1);    }
 }
 
-/* ── Timeline ── */
+/* ── Start Zone ── */
+.hib-start-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 0 24px;
+}
+
+.hib-start-btn {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--white);
+  background: var(--red);
+  border: none;
+  border-radius: 50px;
+  padding: 14px 38px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(208, 32, 62, 0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.04em;
+}
+.hib-start-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(208, 32, 62, 0.45); }
+.hib-start-btn:active { transform: scale(0.97); }
+
+.hib-start-hint {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  letter-spacing: 0.08em;
+}
+
+/* ── Scene (lever + entries) ── */
+.hib-scene {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 2rem 100px;
+}
+
+/* Static grey rail behind everything */
+.hib-rail-track {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--blush-mid);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+/* Colored fill that grows as lever descends */
+.hib-rail-fill {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 0;
+  background: linear-gradient(to bottom, var(--pink-light), var(--red));
+  transform: translateX(-50%);
+  border-radius: 2px;
+  transition: height 0.04s linear;
+  z-index: 1;
+}
+
+/* ── Lever ── */
+.hib-lever-wrap {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  user-select: none;
+}
+
+.hib-lever-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 3px solid var(--white);
+  box-shadow: 0 4px 18px rgba(208, 32, 62, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 1.1rem;
+  cursor: ns-resize;
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+.hib-lever-btn:active {
+  cursor: grabbing;
+  box-shadow: 0 8px 28px rgba(208, 32, 62, 0.6);
+}
+
+.hib-lever-ring {
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px solid var(--pink-light);
+  animation: leverPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes leverPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1);   }
+  50%       { opacity: 0;   transform: scale(1.55); }
+}
+
+.hib-drag-hint {
+  font-size: 0.68rem;
+  color: var(--text-soft);
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+/* ── Entries container ── */
+.hib-entries {
+  padding-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Entry row ── */
+.hib-entry {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  width: 100%;
+  margin-bottom: 72px;
+}
+.hib-entry.left  { flex-direction: row; }
+.hib-entry.right { flex-direction: row-reverse; }
+
+/* Dot — dims until lever reaches it */
+.hib-entry-dot {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--blush-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blush-mid);
+  font-size: 0.8rem;
+  z-index: 3;
+  box-shadow: 0 0 0 4px var(--blush);
+  transition: border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+}
+.hib-entry.hib-lit .hib-entry-dot {
+  border-color: var(--pink);
+  color: var(--pink);
+  box-shadow: 0 0 0 5px var(--blush);
+}
+
+/* ── Card stage (perspective host) ── */
+.hib-card-stage {
+  width: calc(50% - 44px);
+  perspective: 1000px;
+}
+
+/* ── Folded card — hidden by default ── */
+.hib-card-folder {
+  transform-origin: top center;
+  transform: rotateX(-90deg);
+  opacity: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--white);
+  border: 1.5px solid var(--blush-mid);
+  box-shadow: 0 4px 24px var(--shadow);
+  /* no transition here — animation classes take over */
+}
+
+/* Unfold: lever passed this entry going DOWN */
+.hib-entry.hib-open .hib-card-folder {
+  animation: hibUnfold 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Refold: lever pulled back UP past this entry */
+.hib-entry.hib-closing .hib-card-folder {
+  animation: hibRefold 0.5s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+}
+
+@keyframes hibUnfold {
+  0%   { transform: rotateX(-90deg); opacity: 0; }
+  25%  { opacity: 1; }
+  70%  { transform: rotateX(5deg);  }
+  100% { transform: rotateX(0deg);  opacity: 1; }
+}
+
+@keyframes hibRefold {
+  0%   { transform: rotateX(0deg);  opacity: 1; }
+  50%  { opacity: 0.4; }
+  100% { transform: rotateX(-90deg); opacity: 0; }
+}
+
+/* Crease line at the top of each card (the "fold" visual) */
+.hib-card-crease {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, transparent, var(--blush-mid), transparent);
+}
+
+.hib-card-inner {
+  padding: 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.hib-card-date {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pink);
+}
+
+.hib-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  line-height: 1.3;
+}
+
+.hib-card-text {
+  font-size: 0.92rem;
+  color: var(--text-mid);
+  line-height: 1.75;
+}
+
+.hib-card-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--red);
+  background: var(--blush);
+  border-radius: 20px;
+  padding: 3px 12px;
+  margin-top: 0.2rem;
+  width: fit-content;
+}
+
+/* ── Skeleton (loading) — uses old timeline wrapper layout ── */
 .hib-timeline-wrapper {
   position: relative;
   max-width: 860px;
@@ -145,128 +392,44 @@
   border-radius: 2px;
 }
 
-/* ── Entry ── */
-.hib-entry {
-  display: flex;
-  align-items: center;
-  position: relative;
-  width: 100%;
-}
-
-.hib-entry.left {
-  flex-direction: row;
-  justify-content: flex-start;
-}
-.hib-entry.right {
-  flex-direction: row-reverse;
-  justify-content: flex-start;
-}
-
-.hib-entry-dot {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--white);
-  border: 2px solid var(--pink-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--pink);
-  font-size: 0.85rem;
-  z-index: 2;
-  box-shadow: 0 0 0 5px var(--blush);
-}
-
-/* ── Card ── */
-.hib-card {
+.hib-card--skeleton {
   width: calc(50% - 48px);
   background: var(--white);
   border: 1.5px solid var(--blush-mid);
   border-radius: 16px;
   box-shadow: 0 4px 24px var(--shadow);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
 }
 
-.hib-entry.left .hib-card {
-  margin-left: 0;
-}
-.hib-entry.right .hib-card {
-  margin-right: 0;
-}
-
-.hib-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 36px rgba(208, 32, 62, 0.15);
-}
-
-.hib-card-inner {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* Skeleton placeholders */
 .hib-card-date-placeholder {
-  width: 90px;
-  height: 10px;
+  width: 90px; height: 10px;
   background: linear-gradient(90deg, var(--blush) 25%, var(--blush-mid) 50%, var(--blush) 75%);
   background-size: 200% 100%;
   border-radius: 20px;
   animation: shimmer 1.8s infinite;
 }
-
 .hib-card-title-placeholder {
-  width: 65%;
-  height: 16px;
+  width: 65%; height: 16px;
   background: linear-gradient(90deg, var(--blush) 25%, var(--blush-mid) 50%, var(--blush) 75%);
   background-size: 200% 100%;
   border-radius: 20px;
   animation: shimmer 1.8s infinite 0.1s;
 }
-
 .hib-card-text-placeholder {
-  width: 100%;
-  height: 10px;
+  width: 100%; height: 10px;
   background: linear-gradient(90deg, var(--blush) 25%, var(--blush-mid) 50%, var(--blush) 75%);
   background-size: 200% 100%;
   border-radius: 20px;
   animation: shimmer 1.8s infinite 0.2s;
 }
-
-.hib-card-text-placeholder.short {
-  width: 70%;
-  animation-delay: 0.3s;
-}
-
-.hib-card-img-placeholder {
-  width: 100%;
-  height: 130px;
-  background: linear-gradient(135deg, var(--blush) 0%, var(--blush-mid) 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 0.25rem;
-  animation: shimmer 1.8s infinite 0.4s;
-}
-
-.hib-card-img-icon {
-  color: var(--pink-light);
-  font-size: 1.5rem;
-  opacity: 0.6;
-}
+.hib-card-text-placeholder.short { width: 70%; animation-delay: 0.3s; }
 
 @keyframes shimmer {
-  0%   { background-position: 200% 0; }
+  0%   { background-position:  200% 0; }
   100% { background-position: -200% 0; }
 }
 
-/* ── Empty State ── */
+/* ── Empty / Error State ── */
 .hib-empty-state {
   text-align: center;
   padding: 60px 2rem 40px;
@@ -275,28 +438,11 @@
   align-items: center;
   gap: 1rem;
 }
+.hib-empty-icon  { font-size: 3rem; color: var(--red); animation: heartbeat 1.6s ease-in-out infinite; }
+.hib-empty-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 600; color: var(--text-dark); }
+.hib-empty-text  { font-size: 0.97rem; color: var(--text-soft); line-height: 1.8; max-width: 440px; }
 
-.hib-empty-icon {
-  font-size: 3rem;
-  color: var(--red);
-  animation: heartbeat 1.6s ease-in-out infinite;
-}
-
-.hib-empty-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.hib-empty-text {
-  font-size: 0.97rem;
-  color: var(--text-soft);
-  line-height: 1.8;
-  max-width: 440px;
-}
-
-/* ── Bottom Decor ── */
+/* ── Bottom decor ── */
 .hib-bottom-decor {
   display: flex;
   justify-content: center;
@@ -305,7 +451,6 @@
   color: var(--pink-light);
   font-size: 0.9rem;
 }
-
 .hib-bottom-decor span:nth-child(2) {
   color: var(--red);
   font-size: 1rem;
@@ -316,7 +461,11 @@
 @media (max-width: 680px) {
   .hib-hero-decor { display: none; }
 
-  .hib-timeline-line { left: 20px; }
+  /* Lever scene: move rail + lever to left edge */
+  .hib-rail-track,
+  .hib-rail-fill { left: 22px; }
+
+  .hib-lever-wrap { left: 22px; }
 
   .hib-entry.left,
   .hib-entry.right {
@@ -326,13 +475,15 @@
   }
 
   .hib-entry-dot {
-    left: 20px;
+    left: 22px;
     top: 0;
     transform: translateX(-50%);
-    position: absolute;
   }
 
-  .hib-card {
-    width: 100%;
-  }
+  .hib-card-stage { width: 100%; }
+
+  /* Skeleton responsive */
+  .hib-timeline-line { left: 20px; }
+
+  .hib-card--skeleton { width: 100%; }
 }
