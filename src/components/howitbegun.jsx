@@ -50,7 +50,6 @@ const HowItBegun = () => {
       return sceneRef.current.scrollHeight - 44;
     }
     const last = refs[refs.length - 1];
-    // Stop the lever at the bottom of the last entry (relative to the scene)
     return last.offsetTop + last.offsetHeight - 22;
   }, []);
 
@@ -58,7 +57,7 @@ const HowItBegun = () => {
     const clamped = Math.max(0, Math.min(y, getMaxY()));
     leverY.current = clamped;
 
-    // transform is GPU-composited — no layout reflow, smooth on Android
+    // translateY only — X centering is handled by CSS left: calc(50% - 24px)
     if (leverRef.current) leverRef.current.style.transform = `translateY(${clamped}px)`;
     if (railFillRef.current) railFillRef.current.style.height = (clamped + 22) + 'px';
 
@@ -144,7 +143,6 @@ const HowItBegun = () => {
 
   const onTouchMove = useCallback((e) => {
     if (!dragging.current) return;
-    // Prevent native scroll so Android doesn't fight us for the gesture
     e.preventDefault();
     const touch = e.touches[0];
     lastClientY.current = touch.clientY;
@@ -189,7 +187,7 @@ const HowItBegun = () => {
         <div className="hib-hero-content">
           <p className="hib-eyebrow">our story</p>
           <h1 className="hib-title">How It Begun</h1>
-         
+          
           <div className="hib-divider">
             <span className="hib-divider-line" />
             <span className="hib-divider-heart">♥</span>
@@ -203,13 +201,13 @@ const HowItBegun = () => {
       {!started && !loading && !error && entries.length > 0 && (
         <div className="hib-start-zone">
           <button className="hib-start-btn" onClick={handleStart}>
-             ♥
+            ♥
           </button>
           <span className="hib-start-hint">Click me!</span>
         </div>
       )}
 
-      {/* Loading skeletons — no lever */}
+      {/* Loading skeletons */}
       {loading && (
         <div className="hib-timeline-wrapper">
           <div className="hib-timeline-line" />
@@ -235,9 +233,7 @@ const HowItBegun = () => {
           <div className="hib-rail-track" />
           <div className="hib-rail-fill" ref={railFillRef} />
 
-          {/* Draggable lever */}
-          {/* NOTE for CSS: .hib-lever-wrap must have `top: 0` (not removed), position: absolute.
-              We now move it via transform: translateY(...) instead of style.top for GPU smoothness. */}
+          {/* Draggable lever — left centering via CSS, vertical via translateY */}
           <div
             className="hib-lever-wrap"
             ref={leverRef}
