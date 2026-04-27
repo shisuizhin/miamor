@@ -58,7 +58,8 @@ const HowItBegun = () => {
     const clamped = Math.max(0, Math.min(y, getMaxY()));
     leverY.current = clamped;
 
-    if (leverRef.current) leverRef.current.style.top = clamped + 'px';
+    // transform is GPU-composited — no layout reflow, smooth on Android
+    if (leverRef.current) leverRef.current.style.transform = `translateY(${clamped}px)`;
     if (railFillRef.current) railFillRef.current.style.height = (clamped + 22) + 'px';
 
     entryRefs.current.forEach((entry, i) => {
@@ -143,10 +144,13 @@ const HowItBegun = () => {
 
   const onTouchMove = useCallback((e) => {
     if (!dragging.current) return;
-    lastClientY.current = e.touches[0].clientY;
+    // Prevent native scroll so Android doesn't fight us for the gesture
+    e.preventDefault();
+    const touch = e.touches[0];
+    lastClientY.current = touch.clientY;
     cancelAnimationFrame(animFrameRef.current);
     animFrameRef.current = requestAnimationFrame(() => {
-      const dy = e.touches[0].clientY - dragStartClientY.current;
+      const dy = touch.clientY - dragStartClientY.current;
       const dScroll = window.scrollY - dragStartScrollY.current;
       applyLever(dragStartLeverY.current + dy + dScroll);
     });
@@ -160,7 +164,7 @@ const HowItBegun = () => {
   useEffect(() => {
     if (!started) return;
     document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('mouseup', onDragEnd);
     document.addEventListener('touchend', onDragEnd);
     return () => {
@@ -199,9 +203,9 @@ const HowItBegun = () => {
       {!started && !loading && !error && entries.length > 0 && (
         <div className="hib-start-zone">
           <button className="hib-start-btn" onClick={handleStart}>
-             ♥
+            Begin our story ♥
           </button>
-          <span className="hib-start-hint">Click me!</span>
+          <span className="hib-start-hint">pull the lever to unfold each memory</span>
         </div>
       )}
 
@@ -232,11 +236,18 @@ const HowItBegun = () => {
           <div className="hib-rail-fill" ref={railFillRef} />
 
           {/* Draggable lever */}
-          <div className="hib-lever-wrap" ref={leverRef}>
+          {/* NOTE for CSS: .hib-lever-wrap must have `top: 0` (not removed), position: absolute.
+              We now move it via transform: translateY(...) instead of style.top for GPU smoothness. */}
+          <div
+            className="hib-lever-wrap"
+            ref={leverRef}
+            style={{ willChange: 'transform', touchAction: 'none' }}
+          >
             <div
               className="hib-lever-btn"
               onMouseDown={onMouseDown}
               onTouchStart={onTouchStart}
+              style={{ touchAction: 'none' }}
             >
               <div className="hib-lever-ring" />
               ♥
