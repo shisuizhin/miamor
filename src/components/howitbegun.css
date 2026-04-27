@@ -179,14 +179,16 @@
 /* ── Lever ── */
 .hib-lever-wrap {
   position: absolute;
-  left: 50%;
+  /* Use calc so left is fixed and JS translateY never overwrites X centering */
+  left: calc(50% - 24px);
   top: 0;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 10;
   user-select: none;
+  will-change: transform;
+  touch-action: none;
 }
 
 .hib-lever-btn {
@@ -204,6 +206,7 @@
   cursor: ns-resize;
   position: relative;
   transition: box-shadow 0.2s;
+  touch-action: none;
 }
 .hib-lever-btn:active {
   cursor: grabbing;
@@ -294,7 +297,6 @@
   background: var(--white);
   border: 1.5px solid var(--blush-mid);
   box-shadow: 0 4px 24px var(--shadow);
-  /* no transition here — animation classes take over */
 }
 
 /* Unfold: lever passed this entry going DOWN */
@@ -320,7 +322,7 @@
   100% { transform: rotateX(-90deg); opacity: 0; }
 }
 
-/* Crease line at the top of each card (the "fold" visual) */
+/* Crease line at the top of each card */
 .hib-card-crease {
   width: 100%;
   height: 3px;
@@ -370,7 +372,7 @@
   width: fit-content;
 }
 
-/* ── Skeleton (loading) — uses old timeline wrapper layout ── */
+/* ── Skeleton (loading) ── */
 .hib-timeline-wrapper {
   position: relative;
   max-width: 860px;
@@ -463,9 +465,10 @@
 
   /* Lever scene: move rail + lever to left edge */
   .hib-rail-track,
-  .hib-rail-fill { left: 22px; }
+  .hib-rail-fill { left: 22px; transform: none; }
 
-  .hib-lever-wrap { left: 22px; }
+  /* On mobile the lever left is fixed; JS translateY still works fine */
+  .hib-lever-wrap { left: 0px; }
 
   .hib-entry.left,
   .hib-entry.right {
@@ -483,7 +486,6 @@
   .hib-card-stage { width: 100%; }
 
   /* Skeleton responsive */
-  .hib-timeline-line { left: 20px; }
-
+  .hib-timeline-line { left: 20px; transform: none; }
   .hib-card--skeleton { width: 100%; }
 }
